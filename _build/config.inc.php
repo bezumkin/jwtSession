@@ -9,9 +9,9 @@ if (!defined('MODX_CORE_PATH')) {
 }
 
 return [
+    'version' => '1.0.1',
     'name' => 'jwtSession',
     'name_lower' => 'jwtsession',
-    'version' => '1.0.0',
     'release' => 'pl',
     // Install package to site right after build
     'install' => true,

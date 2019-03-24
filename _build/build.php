@@ -82,7 +82,7 @@ class jwtSessionPackage
             /** @var modSystemSetting $setting */
             $setting = $this->modx->newObject('modSystemSetting');
             $setting->fromArray(array_merge([
-                'key' => $this->config['name_lower'] . '_' . $name,
+                'key' => 'jwt_' . $name,
                 'namespace' => $this->config['name_lower'],
             ], $data), '', true, true);
             $vehicle = $this->builder->createVehicle($setting, $attributes);
@@ -142,12 +142,15 @@ class jwtSessionPackage
         $manager = $this->modx->getCacheManager();
         $bases = [
             $this->config['core'] . 'vendor/firebase/php-jwt/',
+            $this->config['core'] . 'vendor/wikimedia/at-ease/',
+            $this->config['core'] . 'vendor/wikimedia/php-session-serializer/',
+            $this->config['core'] . 'vendor/psr/log/',
         ];
 
         foreach ($bases as $base) {
             if ($dirs = @scandir($base)) {
                 foreach ($dirs as $dir) {
-                    if (!in_array($dir, ['src', 'vendor', '.', '..'])) {
+                    if (!in_array($dir, ['src', 'vendor', 'Psr', '.', '..'])) {
                         $path = $base . $dir;
 
                         if (is_dir($path)) {
@@ -168,6 +171,18 @@ class jwtSessionPackage
     public function process()
     {
         $this->cleanVendor();
+
+        // Add elements
+        $elements = scandir($this->config['elements']);
+        foreach ($elements as $element) {
+            if (in_array($element[0], ['_', '.'])) {
+                continue;
+            }
+            $name = preg_replace('#\.php$#', '', $element);
+            if (method_exists($this, $name)) {
+                $this->{$name}();
+            }
+        }
 
         // Create main vehicle
         /** @var modTransportVehicle $vehicle */
